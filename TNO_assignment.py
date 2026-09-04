@@ -9,7 +9,6 @@ V_initial = 200 # m/s
 gravity = 9.81 # m/s2
 C_D = 0.47 
 density_air = 1.28 # kg/m3
-F_thrust = 100 # N                  set to zero if no thrust is applied; first part of assignment
 thrust_duration = 5 # sec
 
 A_frontal_area = np.pi * radius**2 # m2
@@ -75,7 +74,7 @@ def simulate_symplectic_euler(u0, dt=0.0001, t_max=500, F_thrust=0):
     return np.array(t_list), np.array(x_list), np.array(y_list)
 
 
-# Calculate with both methods and plot them in the same plot:
+# Calculate with both methods and no thrust and 100N thrust and plot them in the same plot:
 
 t_arr_forward, x_arr_forward, y_arr_forward, x_raw_forward, y_raw_forward = simulate_forward_euler(u0)
 t_arr_symplectic, x_arr_symplectic, y_arr_symplectic = simulate_symplectic_euler(u0)
@@ -98,6 +97,7 @@ plt.plot(x_arr_forward_thrust, y_arr_forward_thrust, label="forward (with thrust
 plt.plot(x_arr_symplectic_thrust, y_arr_symplectic_thrust, label="symplectic (with thrust)")
 plt.plot(x_raw_forward_thrust, y_raw_forward_thrust, color='lightgrey', alpha=0.8, label="forward (with thrust, raw steps)", marker='o', markersize=3, markerfacecolor='blue', markeredgecolor='blue')
 plt.grid()
+plt.title("Projectile motion")
 plt.xlabel("x (m)")
 plt.ylabel("y (m)")
 plt.legend()
