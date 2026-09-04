@@ -45,9 +45,9 @@ def simulate_forward_euler(u0, t_max=500):
     sol = soln.sol(t_arr)
     x_arr, y_arr = sol[0], sol[2]
 
-    # x_raw, y_raw = soln.y[0], soln.y[2]
+    x_raw, y_raw = soln.y[0], soln.y[2]
     
-    return t_arr, x_arr, y_arr#, x_raw, y_raw
+    return t_arr, x_arr, y_arr, x_raw, y_raw
 
 def simulate_symplectic_euler(u0, dt=0.0001, t_max=500):
     t = 0.0
@@ -74,35 +74,10 @@ def simulate_symplectic_euler(u0, dt=0.0001, t_max=500):
 
     return np.array(t_list), np.array(x_list), np.array(y_list)
 
-# Easy to switch between methods by changing one line:
-
-def simulate(method="forward"):
-    if method == "forward":
-        return simulate_forward_euler(u0)
-    elif method == "symplectic":
-        return simulate_symplectic_euler(u0)
-    else:
-        raise ValueError(f"Unknown method: {method}")
-
-method = "forward"   
-# method = "symplectic"
-
-t_arr, x_arr, y_arr = simulate(method)
-
-print(f"With method {method}: time until landing = {t_arr[-1]:.2f} s")
-print(f"With method {method}: distance until landing = {x_arr[-1]:.2f} m")
-print(f"With method {method}: maximal height = {y_arr.max():.2f} m")
-
-plt.plot(x_arr, y_arr, label=method)
-plt.grid()
-plt.xlabel("x (m)")
-plt.ylabel("y (m)")
-plt.legend()
-plt.show()
-
 
 # Calculate with both methods and plot them in the same plot:
 
+t_arr_forward, x_arr_forward, y_arr_forward, x_raw_forward, y_raw_forward = simulate_forward_euler(u0)
 t_arr_forward, x_arr_forward, y_arr_forward = simulate_forward_euler(u0)
 t_arr_symplectic, x_arr_symplectic, y_arr_symplectic = simulate_symplectic_euler(u0)
 
@@ -112,26 +87,7 @@ print(f"Maximal height:         forward = {y_arr_forward.max():.2f} m.  symplect
 
 plt.plot(x_arr_forward, y_arr_forward, label="forward")
 plt.plot(x_arr_symplectic, y_arr_symplectic, label="symplectic")
-plt.grid()
-plt.xlabel("x (m)")
-plt.ylabel("y (m)")
-plt.legend()
-plt.show()
-
-
-# Calculate with both methods and plot them in the same plot:
-
-# t_arr_forward, x_arr_forward, y_arr_forward, x_raw_forward, y_raw_forward = simulate_forward_euler(u0)
-t_arr_forward, x_arr_forward, y_arr_forward = simulate_forward_euler(u0)
-t_arr_symplectic, x_arr_symplectic, y_arr_symplectic = simulate_symplectic_euler(u0)
-
-print(f"Time until landing:       forward = {t_arr_forward[-1]:.2f} s.    symplectic = {t_arr_symplectic[-1]:.2f} s")
-print(f"Distance until landing:    forward = {x_arr_forward[-1]:.2f} m.    symplectic = {x_arr_symplectic[-1]:.2f} m")
-print(f"Maximal height:         forward = {y_arr_forward.max():.2f} m.  symplectic = {y_arr_symplectic.max():.2f} m")
-
-plt.plot(x_arr_forward, y_arr_forward, label="forward")
-plt.plot(x_arr_symplectic, y_arr_symplectic, label="symplectic")
-# plt.plot(x_raw_forward, y_raw_forward, color='lightgrey', alpha=0.8, label="forward (raw steps)", marker='o', markersize=3, markerfacecolor='red', markeredgecolor='red')
+plt.plot(x_raw_forward, y_raw_forward, color='lightgrey', alpha=0.8, label="forward (raw steps)", marker='o', markersize=3, markerfacecolor='red', markeredgecolor='red')
 plt.grid()
 plt.xlabel("x (m)")
 plt.ylabel("y (m)")
