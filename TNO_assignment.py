@@ -43,10 +43,8 @@ def simulate_forward_euler(u0, t_max=500, F_thrust=0):
     t_arr = np.linspace(0, t_land, 500)
     sol = soln.sol(t_arr)
     x_arr, y_arr = sol[0], sol[2]
-
-    x_raw, y_raw = soln.y[0], soln.y[2]
     
-    return t_arr, x_arr, y_arr, x_raw, y_raw
+    return t_arr, x_arr, y_arr
 
 def simulate_symplectic_euler(u0, dt=0.0001, t_max=500, F_thrust=0):
     t = 0.0
@@ -76,10 +74,10 @@ def simulate_symplectic_euler(u0, dt=0.0001, t_max=500, F_thrust=0):
 
 # Calculate with both methods and no thrust and 100N thrust and plot them in the same plot:
 
-t_arr_forward, x_arr_forward, y_arr_forward, x_raw_forward, y_raw_forward = simulate_forward_euler(u0)
+t_arr_forward, x_arr_forward, y_arr_forward = simulate_forward_euler(u0)
 t_arr_symplectic, x_arr_symplectic, y_arr_symplectic = simulate_symplectic_euler(u0)
 
-t_arr_forward_thrust, x_arr_forward_thrust, y_arr_forward_thrust, x_raw_forward_thrust, y_raw_forward_thrust = simulate_forward_euler(u0, F_thrust=100)
+t_arr_forward_thrust, x_arr_forward_thrust, y_arr_forward_thrust = simulate_forward_euler(u0, F_thrust=100)
 t_arr_symplectic_thrust, x_arr_symplectic_thrust, y_arr_symplectic_thrust = simulate_symplectic_euler(u0, F_thrust=100)
 
 print(f"Time until landing:       forward = {t_arr_forward[-1]:.2f} s.    symplectic = {t_arr_symplectic[-1]:.2f} s")
@@ -92,10 +90,8 @@ print(f"Maximal height with 100N thrust:         forward = {y_arr_forward_thrust
 
 plt.plot(x_arr_forward, y_arr_forward, label="forward")
 plt.plot(x_arr_symplectic, y_arr_symplectic, label="symplectic")
-plt.plot(x_raw_forward, y_raw_forward, color='lightgrey', alpha=0.8, label="forward (raw steps)", marker='o', markersize=3, markerfacecolor='red', markeredgecolor='red')
 plt.plot(x_arr_forward_thrust, y_arr_forward_thrust, label="forward (with thrust)")
 plt.plot(x_arr_symplectic_thrust, y_arr_symplectic_thrust, label="symplectic (with thrust)")
-plt.plot(x_raw_forward_thrust, y_raw_forward_thrust, color='lightgrey', alpha=0.8, label="forward (with thrust, raw steps)", marker='o', markersize=3, markerfacecolor='blue', markeredgecolor='blue')
 plt.grid()
 plt.title("Projectile motion")
 plt.xlabel("x (m)")
