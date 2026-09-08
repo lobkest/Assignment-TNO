@@ -27,8 +27,10 @@ def acceleration(t, x, y, xdot, ydot, F_thrust=0):
         ay += F_thrust * np.sin(phi0) / mass_sphere
     return ax, ay
 
-# this is the true forward Euler method, which uses the old velocity to update the position, and then uses the old acceleration to update the velocity
-def simulate_forward_euler(u0, dt=0.0001, t_max=500, F_thrust=0):
+def simulate(u0, method="forward", dt=0.0001, t_max=500, F_thrust=0):
+    if method not in ("forward", "symplectic"):
+        raise ValueError(f"Unknown method: {method}")
+
     t = 0.0
     x, xdot, y, ydot = u0
     t_list, x_list, y_list = [t], [x], [y]
@@ -36,38 +38,19 @@ def simulate_forward_euler(u0, dt=0.0001, t_max=500, F_thrust=0):
     while t < t_max:
         ax, ay = acceleration(t, x, y, xdot, ydot, F_thrust=F_thrust)
 
-        # position update with the OLD velocity (this is the only difference with symplectic)
-        x_new = x + xdot * dt
-        y_new = y + ydot * dt
-
-        # velocity-update with the old acceleration
         xdot_new = xdot + ax * dt
         ydot_new = ydot + ay * dt
 
-        if y_new < 0 and y >= 0 and t > 0:
-            frac = y / (y - y_new)
-            t_list.append(t + frac * dt)
-            x_list.append(x + frac * (x_new - x))
-            y_list.append(0.0)
-            break
-
-        x, y, xdot, ydot = x_new, y_new, xdot_new, ydot_new
-        t += dt
-        t_list.append(t); x_list.append(x); y_list.append(y)
-
-    return np.array(t_list), np.array(x_list), np.array(y_list)
-
-def simulate_symplectic_euler(u0, dt=0.0001, t_max=500, F_thrust=0):
-    t = 0.0
-    x, xdot, y, ydot = u0
-    t_list, x_list, y_list = [t], [x], [y]
-
-    while t < t_max:
-        ax, ay = acceleration(t, x, y, xdot, ydot, F_thrust=F_thrust)
-        xdot_new = xdot + ax * dt
-        ydot_new = ydot + ay * dt
-        x_new = x + xdot_new * dt
-        y_new = y + ydot_new * dt
+        if method == "forward":
+            # positie-update met de oude snelheid
+            x_new = x + xdot * dt
+            y_new = y + ydot * dt
+        elif method == "symplectic":  # symplectic
+            # positie-update met de nieuwe snelheid
+            x_new = x + xdot_new * dt
+            y_new = y + ydot_new * dt
+        else:
+            raise ValueError(f"Unknown method: {method}")
 
         if y_new < 0 and y >= 0 and t > 0:
             frac = y / (y - y_new)
@@ -85,11 +68,11 @@ def simulate_symplectic_euler(u0, dt=0.0001, t_max=500, F_thrust=0):
 
 # Calculate with both methods and no thrust and 100N thrust and plot them in the same plot:
 
-t_arr_forward, x_arr_forward, y_arr_forward = simulate_forward_euler(u0)
-t_arr_symplectic, x_arr_symplectic, y_arr_symplectic = simulate_symplectic_euler(u0)
+t_arr_forward, x_arr_forward, y_arr_forward = simulate(u0, method="forward")
+t_arr_symplectic, x_arr_symplectic, y_arr_symplectic = simulate(u0, method="symplectic")
 
-t_arr_forward_thrust, x_arr_forward_thrust, y_arr_forward_thrust = simulate_forward_euler(u0, F_thrust=100)
-t_arr_symplectic_thrust, x_arr_symplectic_thrust, y_arr_symplectic_thrust = simulate_symplectic_euler(u0, F_thrust=100)
+t_arr_forward_thrust, x_arr_forward_thrust, y_arr_forward_thrust = simulate(u0, method="forward", F_thrust=100)
+t_arr_symplectic_thrust, x_arr_symplectic_thrust, y_arr_symplectic_thrust = simulate(u0, method="symplectic", F_thrust=100)
 
 print(f"Time until landing:       forward = {t_arr_forward[-1]:.2f} s.    symplectic = {t_arr_symplectic[-1]:.2f} s")
 print(f"Distance until landing:    forward = {x_arr_forward[-1]:.2f} m.    symplectic = {x_arr_symplectic[-1]:.2f} m")
